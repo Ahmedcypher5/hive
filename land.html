@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Land - Hive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #EAEDED;
+      color: #232F3E;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FF9900;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filters input, .filters select {
+      padding: 10px;
+      border: 2px solid #FF9900;
+      border-radius: 8px;
+      width: 180px;
+    }
+
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding-top: 20px;
+    }
+
+    .item-card {
+      background: #fff;
+      padding: 15px;
+      border: 2px solid #FF9900;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .item-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .item-card h3 {
+      color: #FF9900;
+      margin-bottom: 8px;
+    }
+
+    .item-card p {
+      color: #444;
+      font-size: 15px;
+      margin: 6px 0;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      font-size: 14px;
+      color: white;
+      background-color: #232F3E;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌍 Land on Hive</h1>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search (e.g. plot, acre)">
+    <select id="locationFilter">
+      <option value="">All Locations</option>
+    </select>
+    <input type="number" id="minPrice" placeholder="Min Price">
+    <input type="number" id="maxPrice" placeholder="Max Price">
+  </div>
+
+  <div class="items-container" id="itemsContainer">
+    <!-- Firebase land listings will load here -->
+  </div>
+
+  <footer>© 2025 Hive — Powered by the Hustle 🌍</footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const itemsContainer = document.getElementById("itemsContainer");
+    const searchInput = document.getElementById("searchInput");
+    const locationFilter = document.getElementById("locationFilter");
+    const minPrice = document.getElementById("minPrice");
+    const maxPrice = document.getElementById("maxPrice");
+
+    let allLand = [];
+
+    async function loadLand() {
+      const q = query(collection(db, "items"), where("category", "==", "land"));
+      const querySnapshot = await getDocs(q);
+      allLand = [];
+      const locations = new Set();
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        allLand.push(data);
+        if (data.location) {
+          locations.add(data.location);
+        }
+      });
+
+      // Populate locations in the dropdown
+      locationFilter.innerHTML += Array.from(locations).sort().map(loc => `<option value="${loc}">${loc}</option>`).join('');
+      renderLand(allLand);
+    }
+
+    function renderLand(items) {
+      itemsContainer.innerHTML = "";
+      if (items.length === 0) {
+        itemsContainer.innerHTML = "<p style='text-align:center;'>No results found.</p>";
+        return;
+      }
+
+      items.forEach((data) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item-card";
+        itemDiv.innerHTML = `
+          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="Land image">` : ''}
+          <h3>${data.item}</h3>
+          <p><strong>Location:</strong> ${data.location || "N/A"}</p>
+          <p><strong>Price:</strong> UGX ${data.price || "N/A"}</p>
+          <p><strong>📞:</strong> ${data.phone}</p>
+          <p>${data.desc}</p>
+        `;
+        itemsContainer.appendChild(itemDiv);
+      });
+    }
+
+    function applyFilters() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const selectedLocation = locationFilter.value;
+      const min = parseInt(minPrice.value) || 0;
+      const max = parseInt(maxPrice.value) || Infinity;
+
+      const filtered = allLand.filter(item => {
+        const matchesSearch = item.item.toLowerCase().includes(searchTerm) || item.desc.toLowerCase().includes(searchTerm);
+        const matchesLocation = selectedLocation ? item.location === selectedLocation : true;
+        const itemPrice = parseInt(item.price) || 0;
+        const matchesPrice = itemPrice >= min && itemPrice <= max;
+
+        return matchesSearch && matchesLocation && matchesPrice;
+      });
+
+      renderLand(filtered);
+    }
+
+    searchInput.addEventListener("input", applyFilters);
+    locationFilter.addEventListener("change", applyFilters);
+    minPrice.addEventListener("input", applyFilters);
+    maxPrice.addEventListener("input", applyFilters);
+
+    loadLand();
+  </script>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="index.html" style="text-decoration: none;">
+      <button style="background-color: #FF9900; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        🔙 Back to Home
+      </button>
+    </a>
+  </div>
+
+</body>
+</html>

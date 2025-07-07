@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitsubishi - Hive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #EAEDED;
+      color: #232F3E;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FF9900;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #searchInput {
+      padding: 10px;
+      width: 80%;
+      max-width: 400px;
+      border: 2px solid #FF9900;
+      border-radius: 8px;
+    }
+
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding-top: 20px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 15px;
+      border: 2px solid #FF9900;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .item-card h3 {
+      color: #FF9900;
+      margin-bottom: 8px;
+    }
+
+    .item-card p {
+      color: #444;
+      font-size: 15px;
+      margin: 6px 0;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      font-size: 14px;
+      color: white;
+      background-color: #232F3E;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚙 Mitsubishi on Hive</h1>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search Mitsubishi (e.g. Pajero, Outlander)">
+  </div>
+
+  <div class="items-container" id="itemsContainer">
+    <!-- Mitsubishi items will load here -->
+  </div>
+
+  <footer>© 2025 Hive — Powered by the Hustle 🌍</footer>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const itemsContainer = document.getElementById("itemsContainer");
+    const searchInput = document.getElementById("searchInput");
+
+    let allMitsubishi = [];
+
+    async function loadMitsubishi() {
+      const q = query(collection(db, "items"), where("category", "==", "mitsubishi"));
+      const querySnapshot = await getDocs(q);
+      allMitsubishi = [];
+      querySnapshot.forEach((doc) => {
+        allMitsubishi.push(doc.data());
+      });
+      renderMitsubishi(allMitsubishi);
+    }
+
+    function renderMitsubishi(items) {
+      itemsContainer.innerHTML = "";
+      items.forEach((data) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item-card";
+        itemDiv.innerHTML = `
+          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="item image" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+          <h3>${data.item}</h3>
+          <p><strong>📞:</strong> ${data.phone}</p>
+          <p>${data.desc}</p>
+        `;
+        itemsContainer.appendChild(itemDiv);
+      });
+    }
+
+    searchInput.addEventListener("input", () => {
+      const searchTerm = searchInput.value.toLowerCase();
+      const filtered = allMitsubishi.filter(item =>
+        item.item.toLowerCase().includes(searchTerm) ||
+        item.desc.toLowerCase().includes(searchTerm)
+      );
+      renderMitsubishi(filtered);
+    });
+
+    loadMitsubishi();
+  </script>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="index.html" style="text-decoration: none;">
+      <button style="background-color: #FF9900; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        🔙 Back to Home
+      </button>
+    </a>
+  </div>
+
+</body>
+</html>

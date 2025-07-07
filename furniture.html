@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Furniture - Hive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #EAEDED;
+      color: #232F3E;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FF9900;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .filters input,
+    .filters select {
+      padding: 10px;
+      border: 2px solid #FF9900;
+      border-radius: 8px;
+      min-width: 150px;
+    }
+
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding-top: 20px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 15px;
+      border: 2px solid #FF9900;
+      border-radius: 12px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .item-card h3 {
+      color: #FF9900;
+      margin-bottom: 8px;
+    }
+
+    .item-card p {
+      color: #444;
+      font-size: 15px;
+      margin: 6px 0;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      font-size: 14px;
+      color: white;
+      background-color: #232F3E;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🪑 Furniture on Hive</h1>
+
+  <div class="filters">
+    <input type="text" id="searchInput" placeholder="Search furniture (e.g. sofa, table)">
+    <input type="text" id="brandFilter" placeholder="Brand (optional)">
+    <input type="text" id="locationFilter" placeholder="Location (e.g. Kampala)">
+    <input type="number" id="minPrice" placeholder="Min Price (UGX)">
+    <input type="number" id="maxPrice" placeholder="Max Price (UGX)">
+  </div>
+
+  <div class="items-container" id="itemsContainer">
+    <!-- Furniture items will appear here -->
+  </div>
+
+  <footer>© 2025 Hive — Powered by the Hustle 🌍</footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const itemsContainer = document.getElementById("itemsContainer");
+
+    const brandFilter = document.getElementById("brandFilter");
+    const locationFilter = document.getElementById("locationFilter");
+    const minPrice = document.getElementById("minPrice");
+    const maxPrice = document.getElementById("maxPrice");
+    const searchInput = document.getElementById("searchInput");
+
+    let allFurniture = [];
+
+    async function loadFurniture() {
+      const q = query(collection(db, "items"), where("category", "==", "furniture"));
+      const snapshot = await getDocs(q);
+      allFurniture = [];
+      snapshot.forEach(doc => allFurniture.push(doc.data()));
+      filterAndRender();
+    }
+
+    function filterAndRender() {
+      let filtered = allFurniture;
+
+      const brand = brandFilter.value.toLowerCase();
+      const location = locationFilter.value.toLowerCase();
+      const search = searchInput.value.toLowerCase();
+      const min = parseInt(minPrice.value) || 0;
+      const max = parseInt(maxPrice.value) || Infinity;
+
+      filtered = filtered.filter(item => {
+        const itemName = item.item?.toLowerCase() || "";
+        const itemDesc = item.desc?.toLowerCase() || "";
+        const itemBrand = item.brand?.toLowerCase() || "";
+        const itemLocation = item.location?.toLowerCase() || "";
+        const price = parseInt(item.price) || 0;
+
+        return (
+          (brand === "" || itemBrand.includes(brand)) &&
+          (location === "" || itemLocation.includes(location)) &&
+          (price >= min && price <= max) &&
+          (itemName.includes(search) || itemDesc.includes(search))
+        );
+      });
+
+      renderFurniture(filtered);
+    }
+
+    function renderFurniture(items) {
+      itemsContainer.innerHTML = "";
+      items.forEach(data => {
+        const itemDiv = document.createElement("div");
+        itemDiv.className = "item-card";
+        itemDiv.innerHTML = `
+          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="item image" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+          <h3>${data.item}</h3>
+          <p><strong>📍:</strong> ${data.location || "N/A"}</p>
+          <p><strong>💰:</strong> UGX ${data.price || "N/A"}</p>
+          <p><strong>📞:</strong> ${data.phone}</p>
+          <p>${data.desc}</p>
+        `;
+        itemsContainer.appendChild(itemDiv);
+      });
+    }
+
+    [brandFilter, locationFilter, minPrice, maxPrice, searchInput].forEach(el => {
+      el.addEventListener("input", filterAndRender);
+    });
+
+    loadFurniture();
+  </script>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <a href="index.html" style="text-decoration: none;">
+      <button style="background-color: #FF9900; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">
+        🔙 Back to Home
+      </button>
+    </a>
+  </div>
+
+</body>
+</html>

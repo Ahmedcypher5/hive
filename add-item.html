@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Product - DealHive</title>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2 {
+      color: goldenrod;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid gold;
+      border-radius: 8px;
+    }
+
+    button {
+      background-color: gold;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      background-color: #e6b800;
+    }
+
+    .message {
+      text-align: center;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🛒 Post a Product on DealHive</h2>
+
+  <form id="productForm">
+    <label for="title">Item Name:</label>
+    <input type="text" id="title" required />
+
+    <label for="category">Category:</label>
+    <select id="category" required>
+      <option value="">-- Choose --</option>
+      <option value="phones">Phones</option>
+      <option value="clothes">Clothes</option>
+      <option value="shoes">Shoes</option>
+      <option value="electronics">Electronics</option>
+      <option value="cars">Cars</option>
+      <option value="rentals">Rentals</option>
+    </select>
+
+    <label for="contact">Phone/WhatsApp Number:</label>
+    <input type="tel" id="contact" required />
+
+    <label for="desc">Short Description:</label>
+    <textarea id="desc" rows="4"></textarea>
+
+    <button type="submit">Submit</button>
+    <p class="message" id="message"></p>
+  </form>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById('productForm');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const data = {
+        title: document.getElementById('title').value,
+        category: document.getElementById('category').value,
+        contact: document.getElementById('contact').value,
+        description: document.getElementById('desc').value,
+        createdAt: new Date()
+      };
+
+      try {
+        await addDoc(collection(db, "products"), data);
+        message.textContent = "✅ Product posted successfully!";
+        form.reset();
+      } catch (error) {
+        message.textContent = "❌ Error posting product.";
+        console.error("Error adding document: ", error);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Products - Hive</title>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: #222;
+    }
+
+    h2 {
+      text-align: center;
+      color: goldenrod;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .product-card {
+      border: 2px solid gold;
+      border-radius: 10px;
+      padding: 15px;
+      background-color: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .product-card h3 {
+      margin-top: 0;
+      color: #222;
+    }
+
+    .product-card p {
+      margin: 8px 0;
+    }
+
+    .contact-btn {
+      display: inline-block;
+      background-color: gold;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .contact-btn:hover {
+      background-color: #e6b800;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>🛒 All Products on Hive</h2>
+
+  <div class="product-list" id="productList">
+    <!-- Products will be loaded here -->
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const productList = document.getElementById('productList');
+
+    async function loadProducts() {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const card = document.createElement("div");
+        card.className = "product-card";
+        card.innerHTML = `
+          <h3>${data.title}</h3>
+          <p>📦 Category: ${data.category}</p>
+          <p>📞 ${data.contact}</p>
+          <p>${data.description}</p>
+          <a href="tel:${data.contact}" class="contact-btn">Call Seller</a>
+        `;
+        productList.appendChild(card);
+      });
+    }
+
+    loadProducts();
+  </script>
+
+</body>
+</html>

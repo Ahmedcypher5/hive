@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hive</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #EAEDED;
+      color: #232F3E;
+    }
+
+    header {
+      background-color: #232F3E;
+      padding: 10px 20px;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo-title img {
+      height: 40px;
+    }
+
+    .account {
+      font-size: 16px;
+    }
+
+    .search-bar {
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    #globalSearchInput {
+      width: 90%;
+      max-width: 500px;
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 2px solid #FF9900;
+      font-size: 16px;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 10px 0;
+      gap: 15px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      background-color: #FF9900;
+      padding: 8px 15px;
+      border-radius: 8px;
+      transition: background 0.3s;
+    }
+
+    nav a:hover {
+      background-color: #e68a00;
+    }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 25px;
+      padding: 30px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .category-card {
+      background-color: white;
+      border: 2px solid #FF9900;
+      border-radius: 12px;
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+
+    .category-card h3 {
+      margin: 10px 0;
+    }
+
+    .category-card a {
+      color: white;
+      background-color: #FF9900;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+    }
+
+    .category-card a:hover {
+      background-color: #e68a00;
+    }
+
+    .category-section {
+      padding: 20px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 15px;
+      border: 2px solid #FF9900;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .item-card h3 {
+      color: #FF9900;
+    }
+
+    .featured-banner {
+      text-align: center;
+      background-color: #FFD580;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #232F3E;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: #232F3E;
+      font-size: 14px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <div class="logo-title">
+        <img src="logo.png" alt="Hive Logo" />
+        <div class="title">Hive</div>
+      </div>
+      <div class="account" id="accountName">Hello</div>
+    </div>
+
+    <div class="search-bar">
+      <input type="text" id="globalSearchInput" placeholder="Search all items..." />
+    </div>
+
+    <nav>
+      <a href="phones.html">Phones</a>
+      <a href="clothes.html">Clothes</a>
+      <a href="shoes.html">Shoes</a>
+      <a href="electronics.html">Electronics</a>
+      <a href="rentals.html">Rentals</a>
+      <a href="cars.html">Cars</a>
+      <a href="furniture.html">Furniture</a>
+      <a href="vehicle-parts.html">Vehicle Parts</a>
+      <a href="land.html">Land</a>
+      <a href="upload.html">Post Item</a>
+    </nav>
+  </header>
+
+  <section class="featured-banner">
+    🔥 Featured Now: Hot Deals on Phones, Cars, and Rentals Across Uganda! 🔥
+  </section>
+
+  <section class="categories">
+    <div class="category-card"><h3>📱 Phones</h3><a href="phones.html">View</a></div>
+    <div class="category-card"><h3>👕 Clothes</h3><a href="clothes.html">View</a></div>
+    <div class="category-card"><h3>👟 Shoes</h3><a href="shoes.html">View</a></div>
+    <div class="category-card"><h3>🔌 Electronics</h3><a href="electronics.html">View</a></div>
+    <div class="category-card"><h3>🏠 Rentals</h3><a href="rentals.html">View</a></div>
+    <div class="category-card"><h3>🚗 Cars</h3><a href="cars.html">View</a></div>
+    <div class="category-card"><h3>🛋️ Furniture</h3><a href="furniture.html">View</a></div>
+    <div class="category-card"><h3>🛠️ Vehicle Parts</h3><a href="vehicle-parts.html">View</a></div>
+    <div class="category-card"><h3>🌍 Land</h3><a href="land.html">View</a></div>
+  </section>
+
+  <section class="category-section">
+    <h2 style="text-align: center; color: #FF9900;">📱 Latest Phones</h2>
+    <div id="phones-list" class="items-container"></div>
+  </section>
+
+  <footer>© 2025 Hive — Built with Hustle for Africa 🌍</footer>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth();
+
+    const phonesList = document.getElementById("phones-list");
+    const globalSearchInput = document.getElementById("globalSearchInput");
+    const accountName = document.getElementById("accountName");
+
+    onAuthStateChanged(auth, (user) => {
+      accountName.innerText = "Hello";
+    });
+
+    async function loadPhones() {
+      const q = query(collection(db, "items"), where("category", "==", "phones"), limit(3));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "item-card";
+        div.innerHTML = `
+          <h3>${data.item}</h3>
+          <p>${data.desc}</p>
+          <p><strong>📞</strong> ${data.phone}</p>
+        `;
+        phonesList.appendChild(div);
+      });
+    }
+
+    globalSearchInput.addEventListener("input", async () => {
+      const searchTerm = globalSearchInput.value.toLowerCase();
+      phonesList.innerHTML = "";
+
+      const q = query(collection(db, "items"));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (
+          data.item.toLowerCase().includes(searchTerm) ||
+          data.desc.toLowerCase().includes(searchTerm) ||
+          data.category.toLowerCase().includes(searchTerm)
+        ) {
+          const div = document.createElement("div");
+          div.className = "item-card";
+          div.innerHTML = `
+            <h3>${data.item}</h3>
+            <p>${data.desc}</p>
+            <p><strong>📞</strong> ${data.phone}</p>
+          `;
+          phonesList.appendChild(div);
+        }
+      });
+    });
+
+    loadPhones();
+  </script>
+
+</body>
+</html>

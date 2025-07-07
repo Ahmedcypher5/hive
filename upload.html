@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Post Your Item - DealHive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #EAEDED;
+      margin: 0;
+      padding: 20px;
+      color: #232F3E;
+    }
+
+    h1 {
+      text-align: center;
+      color: #FF9900;
+    }
+
+    form {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      border: 2px solid #FF9900;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #232F3E;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #FF9900;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #e68a00;
+    }
+
+    #logoutBtn {
+      display: block;
+      width: 150px;
+      margin: 20px auto;
+      background: crimson;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📤 Post Your Item</h1>
+
+  <button id="logoutBtn">🔓 Logout</button>
+
+  <form>
+    <label for="name">Your Name</label>
+    <input type="text" id="name" required>
+
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" required>
+
+    <label for="category">Category</label>
+    <select id="category" required>
+      <option value="phones">Phones</option>
+      <option value="clothes">Clothes</option>
+      <option value="shoes">Shoes</option>
+      <option value="electronics">Electronics</option>
+      <option value="cars">Cars</option>
+      <option value="rentals">Rentals</option>
+    </select>
+
+    <label for="item">Item Title</label>
+    <input type="text" id="item" required>
+
+    <label for="desc">Description</label>
+    <textarea id="desc" rows="4" required></textarea>
+
+    <label for="image">Image (optional)</label>
+    <input type="file" id="image">
+
+    <button type="submit">Submit Item</button>
+  </form>
+
+  <!-- Firebase Script -->
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+    authDomain: "dealhive-79fa4.firebaseapp.com",
+    projectId: "dealhive-79fa4",
+    storageBucket: "dealhive-79fa4.appspot.com",
+    messagingSenderId: "54474326600",
+    appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+    measurementId: "G-RV3Y08GP1R"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  // 🔐 Redirect if not logged in
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    }
+  });
+
+  const form = document.querySelector("form");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const category = document.getElementById("category").value;
+    const item = document.getElementById("item").value;
+    const desc = document.getElementById("desc").value;
+    const imageFile = document.getElementById("image").files[0];
+
+    let imageUrl = "";
+
+    try {
+      // Upload image if provided
+      if (imageFile) {
+        const imageRef = ref(storage, `items/${Date.now()}_${imageFile.name}`);
+        const snapshot = await uploadBytes(imageRef, imageFile);
+        imageUrl = await getDownloadURL(snapshot.ref);
+      }
+
+      // Save item to Firestore
+      await addDoc(collection(db, "items"), {
+        name,
+        phone,
+        category,
+        item,
+        desc,
+        imageUrl,
+        uid: user.uid,
+        timestamp: new Date()
+      });
+
+      alert("✅ Item posted successfully!");
+      form.reset();
+    } catch (error) {
+      alert("❌ Error: " + error.message);
+    }
+  });
+
+  // 🔓 Logout
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    signOut(auth).then(() => {
+      alert("Logged out successfully!");
+      window.location.href = "login.html";
+    }).catch((error) => {
+      alert("Logout error: " + error.message);
+    });
+  });
+</script>

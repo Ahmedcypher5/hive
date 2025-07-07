@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Listings - DealHive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background: #fff;
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: goldenrod;
+    }
+
+    .items-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: auto;
+      padding-top: 20px;
+    }
+
+    .item-card {
+      background: #f9f9f9;
+      border: 2px solid gold;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .item-card h3 {
+      margin: 0 0 10px;
+      color: goldenrod;
+    }
+
+    .item-card button {
+      background: red;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background: #f2f2f2;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📦 My Listings</h1>
+
+  <div class="items-container" id="itemsContainer">
+    <!-- Items by this user will show here -->
+  </div>
+
+  <footer>© 2025 DealHive — Powered by Hustle 🌍</footer>
+
+  <!-- Firebase Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    const itemsContainer = document.getElementById("itemsContainer");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const q = query(collection(db, "items"), where("phone", "==", user.phoneNumber || "no-number"));
+
+      const snapshot = await getDocs(q);
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "item-card";
+
+        card.innerHTML = `
+          <h3>${data.item}</h3>
+          <p>${data.desc}</p>
+          <p><strong>📞:</strong> ${data.phone}</p>
+          <button data-id="${docSnap.id}">Delete</button>
+        `;
+
+        // Delete logic
+        card.querySelector("button").addEventListener("click", async () => {
+          const confirmDelete = confirm("Are you sure you want to delete this listing?");
+          if (confirmDelete) {
+            await deleteDoc(doc(db, "items", docSnap.id));
+            card.remove(); // remove from UI
+            alert("Item deleted!");
+          }
+        });
+
+        itemsContainer.appendChild(card);
+      });
+    });
+  </script>
+</body>
+</html>

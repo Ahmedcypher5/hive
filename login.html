@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - DealHive</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: goldenrod;
+    }
+
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: #f9f9f9;
+      padding: 25px;
+      border-radius: 10px;
+      border: 2px solid gold;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: gold;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #e6b800;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .link a {
+      color: goldenrod;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔐 Seller Login</h1>
+
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input type="email" id="email" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" required>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <div class="link">
+    <p>Don’t have an account? <a href="signup.html">Create one</a></p>
+  </div>
+
+  <!-- Firebase Login -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
+      authDomain: "dealhive-79fa4.firebaseapp.com",
+      projectId: "dealhive-79fa4",
+      storageBucket: "dealhive-79fa4.appspot.com",
+      messagingSenderId: "54474326600",
+      appId: "1:54474326600:web:9187ac573b8be80c2b4e7d",
+      measurementId: "G-RV3Y08GP1R"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const form = document.getElementById("loginForm");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          alert("Login successful!");
+          window.location.href = "upload.html";
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>
