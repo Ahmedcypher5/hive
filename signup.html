@@ -17,7 +17,7 @@
     }
 
     form {
-      max-width: 400px;
+      max-width: 450px;
       margin: auto;
       background: #f9f9f9;
       padding: 25px;
@@ -31,7 +31,7 @@
       margin: 15px 0 5px;
     }
 
-    input {
+    input, select {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
@@ -54,45 +54,61 @@
       background-color: #e6b800;
     }
 
-    .back-btn {
-      display: block;
+    .back {
       text-align: center;
       margin-top: 20px;
     }
 
-    .back-btn a {
-      text-decoration: none;
-      color: goldenrod;
+    .back-button {
+      background-color: #FF9900;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
       font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s;
+      display: inline-block;
     }
 
-    .back-btn a:hover {
-      text-decoration: underline;
+    .back-button:hover {
+      background-color: #e68a00;
     }
   </style>
 </head>
 <body>
 
-  <h2>🔐 Register as Seller</h2>
+  <h2>📝 Create Seller Account</h2>
 
   <form id="registerForm">
+    <label for="fullName">Full Name</label>
+    <input type="text" id="fullName" required>
+
+    <label for="phone">Phone Number</label>
+    <input type="text" id="phone" required>
+
+    <label for="location">Location</label>
+    <input type="text" id="location" required>
+
     <label for="email">Email</label>
     <input type="email" id="email" required>
 
     <label for="password">Password</label>
     <input type="password" id="password" required>
 
-    <button type="submit">Create Account</button>
+    <button type="submit">Register</button>
   </form>
 
-  <div class="back-btn">
-    <a href="index.html">🔙 Back to Home</a>
+  <div class="back">
+    <a href="login.html" class="back-button">🔙 Back to Login</a>
   </div>
 
-  <!-- Firebase Auth Script -->
+  <!-- Firebase Auth + Firestore -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCzf85l12OWS3kHIaYrd3RgDGnSO1w8Flo",
@@ -106,15 +122,31 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+    const form = document.getElementById("registerForm");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      const fullName = document.getElementById("fullName").value;
+      const phone = document.getElementById("phone").value;
+      const location = document.getElementById("location").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
       try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Account created! Now you can login.");
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const userId = userCredential.user.uid;
+
+        await setDoc(doc(db, "sellers", userId), {
+          fullName,
+          phone,
+          location,
+          email
+        });
+
+        alert("Account created successfully!");
         window.location.href = "login.html";
       } catch (error) {
         alert("Error: " + error.message);
