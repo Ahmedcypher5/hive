@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Land - Hive</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -89,12 +90,12 @@
   <h1>🌍 Land on Hive</h1>
 
   <div class="filters">
-    <input type="text" id="searchInput" placeholder="Search (e.g. plot, acre)">
+    <input type="text" id="searchInput" placeholder="🔍 Search (e.g. plot, acre)">
     <select id="locationFilter">
-      <option value="">All Locations</option>
+      <option value="">📍 All Locations</option>
     </select>
-    <input type="number" id="minPrice" placeholder="Min Price">
-    <input type="number" id="maxPrice" placeholder="Max Price">
+    <input type="number" id="minPrice" placeholder="Min Price (UGX)">
+    <input type="number" id="maxPrice" placeholder="Max Price (UGX)">
   </div>
 
   <div class="items-container" id="itemsContainer">
@@ -129,21 +130,24 @@
 
     async function loadLand() {
       const q = query(collection(db, "items"), where("category", "==", "land"));
-      const querySnapshot = await getDocs(q);
+      const snapshot = await getDocs(q);
       allLand = [];
       const locations = new Set();
 
-      querySnapshot.forEach((doc) => {
+      snapshot.forEach((doc) => {
         const data = doc.data();
         allLand.push(data);
         if (data.location) {
-          locations.add(data.location);
+          locations.add(data.location.toLowerCase());
         }
       });
 
-      // Populate locations in the dropdown
-      locationFilter.innerHTML += Array.from(locations).sort().map(loc => `<option value="${loc}">${loc}</option>`).join('');
-      renderLand(allLand);
+      const sortedLocations = Array.from(locations).sort();
+      locationFilter.innerHTML += sortedLocations.map(loc =>
+        `<option value="${loc}">${loc.charAt(0).toUpperCase() + loc.slice(1)}</option>`
+      ).join('');
+
+      applyFilters();
     }
 
     function renderLand(items) {
@@ -159,8 +163,8 @@
         itemDiv.innerHTML = `
           ${data.imageUrl ? `<img src="${data.imageUrl}" alt="Land image">` : ''}
           <h3>${data.item}</h3>
-          <p><strong>Location:</strong> ${data.location || "N/A"}</p>
-          <p><strong>Price:</strong> UGX ${data.price || "N/A"}</p>
+          <p><strong>📍 Location:</strong> ${data.location || "N/A"}</p>
+          <p><strong>💰 Price:</strong> UGX ${data.price || "N/A"}</p>
           <p><strong>📞:</strong> ${data.phone}</p>
           <p>${data.desc}</p>
         `;
@@ -170,17 +174,21 @@
 
     function applyFilters() {
       const searchTerm = searchInput.value.toLowerCase();
-      const selectedLocation = locationFilter.value;
+      const selectedLocation = locationFilter.value.toLowerCase();
       const min = parseInt(minPrice.value) || 0;
       const max = parseInt(maxPrice.value) || Infinity;
 
       const filtered = allLand.filter(item => {
-        const matchesSearch = item.item.toLowerCase().includes(searchTerm) || item.desc.toLowerCase().includes(searchTerm);
-        const matchesLocation = selectedLocation ? item.location === selectedLocation : true;
-        const itemPrice = parseInt(item.price) || 0;
-        const matchesPrice = itemPrice >= min && itemPrice <= max;
+        const name = item.item?.toLowerCase() || "";
+        const desc = item.desc?.toLowerCase() || "";
+        const location = item.location?.toLowerCase() || "";
+        const price = parseInt(item.price) || 0;
 
-        return matchesSearch && matchesLocation && matchesPrice;
+        return (
+          (name.includes(searchTerm) || desc.includes(searchTerm)) &&
+          (selectedLocation === "" || location === selectedLocation) &&
+          price >= min && price <= max
+        );
       });
 
       renderLand(filtered);
