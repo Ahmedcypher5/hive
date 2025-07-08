@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nissan - Hive</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -48,6 +49,12 @@
       text-align: center;
       transition: transform 0.2s, box-shadow 0.3s;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .item-card img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
     }
 
     .item-card h3 {
@@ -125,12 +132,19 @@
 
     function renderNissan(items) {
       itemsContainer.innerHTML = "";
+      if (items.length === 0) {
+        itemsContainer.innerHTML = "<p style='text-align:center;'>No results found.</p>";
+        return;
+      }
+
       items.forEach((data) => {
         const itemDiv = document.createElement("div");
         itemDiv.className = "item-card";
         itemDiv.innerHTML = `
-          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="item image" style="width:100%; border-radius:10px; margin-bottom:10px;">` : ''}
+          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="item image">` : ''}
           <h3>${data.item}</h3>
+          <p><strong>📍 Location:</strong> ${data.location || "N/A"}</p>
+          <p><strong>💰 Price:</strong> UGX ${data.price || "N/A"}</p>
           <p><strong>📞:</strong> ${data.phone}</p>
           <p>${data.desc}</p>
         `;
@@ -141,8 +155,8 @@
     searchInput.addEventListener("input", () => {
       const searchTerm = searchInput.value.toLowerCase();
       const filtered = allNissan.filter(item =>
-        item.item.toLowerCase().includes(searchTerm) ||
-        item.desc.toLowerCase().includes(searchTerm)
+        item.item?.toLowerCase().includes(searchTerm) ||
+        item.desc?.toLowerCase().includes(searchTerm)
       );
       renderNissan(filtered);
     });
