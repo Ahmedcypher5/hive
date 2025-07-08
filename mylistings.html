@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Listings - DealHive</title>
+  <title>My Listings - Hive</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      background: #fff;
+      background: #EAEDED;
       color: #333;
       padding: 20px;
     }
@@ -28,35 +29,71 @@
     }
 
     .item-card {
-      background: #f9f9f9;
-      border: 2px solid gold;
+      background: #fff;
+      border: 2px solid goldenrod;
       padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+      transition: transform 0.2s, box-shadow 0.3s;
+      text-align: center;
+    }
+
+    .item-card img {
+      width: 100%;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 10px;
+      max-height: 180px;
+      object-fit: cover;
     }
 
     .item-card h3 {
-      margin: 0 0 10px;
       color: goldenrod;
+      margin-bottom: 6px;
+    }
+
+    .item-card p {
+      font-size: 14px;
+      margin: 4px 0;
     }
 
     .item-card button {
       background: red;
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
       cursor: pointer;
       margin-top: 10px;
+    }
+
+    .item-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.1);
     }
 
     footer {
       text-align: center;
       margin-top: 40px;
       padding: 20px;
-      background: #f2f2f2;
+      background: #232F3E;
+      color: white;
       font-size: 14px;
-      color: #777;
+    }
+
+    .back-home {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .back-home button {
+      background-color: goldenrod;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -65,10 +102,16 @@
   <h1>📦 My Listings</h1>
 
   <div class="items-container" id="itemsContainer">
-    <!-- Items by this user will show here -->
+    <!-- Listings will load here -->
   </div>
 
-  <footer>© 2025 DealHive — Powered by Hustle 🌍</footer>
+  <footer>© 2025 Hive — Powered by Hustle 🌍</footer>
+
+  <div class="back-home">
+    <a href="index.html" style="text-decoration: none;">
+      <button>🔙 Back to Home</button>
+    </a>
+  </div>
 
   <!-- Firebase Script -->
   <script type="module">
@@ -98,8 +141,12 @@
       }
 
       const q = query(collection(db, "items"), where("phone", "==", user.phoneNumber || "no-number"));
-
       const snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        itemsContainer.innerHTML = "<p style='text-align:center;'>You have no listings yet.</p>";
+        return;
+      }
 
       snapshot.forEach((docSnap) => {
         const data = docSnap.data();
@@ -107,18 +154,20 @@
         card.className = "item-card";
 
         card.innerHTML = `
+          ${data.imageUrl ? `<img src="${data.imageUrl}" alt="item image">` : ''}
           <h3>${data.item}</h3>
-          <p>${data.desc}</p>
+          <p><strong>📍 Location:</strong> ${data.location || "N/A"}</p>
+          <p><strong>💰 Price:</strong> UGX ${data.price || "N/A"}</p>
           <p><strong>📞:</strong> ${data.phone}</p>
+          <p>${data.desc}</p>
           <button data-id="${docSnap.id}">Delete</button>
         `;
 
-        // Delete logic
         card.querySelector("button").addEventListener("click", async () => {
           const confirmDelete = confirm("Are you sure you want to delete this listing?");
           if (confirmDelete) {
             await deleteDoc(doc(db, "items", docSnap.id));
-            card.remove(); // remove from UI
+            card.remove();
             alert("Item deleted!");
           }
         });
