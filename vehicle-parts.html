@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vehicle Parts - Hive</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -28,15 +29,6 @@
       margin: 5px;
       border: 2px solid #FF9900;
       border-radius: 8px;
-    }
-
-    #filterBtn {
-      padding: 10px 20px;
-      background-color: #FF9900;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
     }
 
     .items-container {
@@ -89,19 +81,18 @@
   <h1>🛠️ Vehicle Parts on Hive</h1>
 
   <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="Search vehicle parts (e.g. battery, mirrors, seats)">
+    <input type="text" id="searchInput" placeholder="🔍 Search parts (e.g. battery, mirrors)">
     <br><br>
     <select id="locationFilter">
-      <option value="">All Locations</option>
-      <option value="Kampala">Kampala</option>
-      <option value="Mukono">Mukono</option>
-      <option value="Entebbe">Entebbe</option>
-      <option value="Mbarara">Mbarara</option>
-      <option value="Gulu">Gulu</option>
+      <option value="">📍 All Locations</option>
+      <option value="kampala">Kampala</option>
+      <option value="mukono">Mukono</option>
+      <option value="entebbe">Entebbe</option>
+      <option value="mbarara">Mbarara</option>
+      <option value="gulu">Gulu</option>
     </select>
-    <input type="number" id="minPrice" placeholder="Min Price">
-    <input type="number" id="maxPrice" placeholder="Max Price">
-    <button id="filterBtn">Filter</button>
+    <input type="number" id="minPrice" placeholder="Min Price (UGX)">
+    <input type="number" id="maxPrice" placeholder="Max Price (UGX)">
   </div>
 
   <div class="items-container" id="itemsContainer">
@@ -110,7 +101,6 @@
 
   <footer>© 2025 Hive — Powered by the Hustle 🌍</footer>
 
-  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
     import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -130,6 +120,9 @@
 
     const itemsContainer = document.getElementById("itemsContainer");
     const searchInput = document.getElementById("searchInput");
+    const locationFilter = document.getElementById("locationFilter");
+    const minPrice = document.getElementById("minPrice");
+    const maxPrice = document.getElementById("maxPrice");
 
     let allParts = [];
 
@@ -158,8 +151,8 @@
           <h3>${data.item}</h3>
           <p><strong>📞:</strong> ${data.phone}</p>
           <p>${data.desc}</p>
-          <p><strong>Location:</strong> ${data.location || 'Unknown'}</p>
-          <p><strong>Price:</strong> ${data.price ? 'UGX ' + data.price : 'Not listed'}</p>
+          <p><strong>📍:</strong> ${data.location || 'Unknown'}</p>
+          <p><strong>💰:</strong> ${data.price ? 'UGX ' + data.price : 'Not listed'}</p>
         `;
         itemsContainer.appendChild(itemDiv);
       });
@@ -167,27 +160,29 @@
 
     function applyFilters() {
       const searchTerm = searchInput.value.toLowerCase();
-      const selectedLocation = document.getElementById("locationFilter").value.toLowerCase();
-      const minPrice = parseInt(document.getElementById("minPrice").value) || 0;
-      const maxPrice = parseInt(document.getElementById("maxPrice").value) || Infinity;
+      const selectedLocation = locationFilter.value.toLowerCase();
+      const min = parseInt(minPrice.value) || 0;
+      const max = parseInt(maxPrice.value) || Infinity;
 
       const filtered = allParts.filter(item => {
-        const matchesSearch =
-          item.item.toLowerCase().includes(searchTerm) ||
-          item.desc.toLowerCase().includes(searchTerm);
-
-        const matchesLocation = selectedLocation === "" || (item.location && item.location.toLowerCase() === selectedLocation);
+        const name = item.item?.toLowerCase() || "";
+        const desc = item.desc?.toLowerCase() || "";
+        const loc = item.location?.toLowerCase() || "";
         const price = parseInt(item.price) || 0;
-        const matchesPrice = price >= minPrice && price <= maxPrice;
 
-        return matchesSearch && matchesLocation && matchesPrice;
+        return (
+          (name.includes(searchTerm) || desc.includes(searchTerm)) &&
+          (selectedLocation === "" || loc === selectedLocation) &&
+          price >= min && price <= max
+        );
       });
 
       renderParts(filtered);
     }
 
-    document.getElementById("filterBtn").addEventListener("click", applyFilters);
-    searchInput.addEventListener("input", applyFilters);
+    [searchInput, locationFilter, minPrice, maxPrice].forEach(el => {
+      el.addEventListener("input", applyFilters);
+    });
 
     loadParts();
   </script>
